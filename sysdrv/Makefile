@@ -364,7 +364,11 @@ ifeq ($(RK_ENABLE_FASTBOOT), y)
 	$(call MACRO_CHK_DRIVER_MODULE, $(SYSDRV_DIR)/drv_ko/kmpp/, kmpp)
 endif
 	@rm -rf $(KERNEL_DTB)
+ifeq ($(shell test -e $(KERNEL_DIR)/.config && echo -n yes), yes)
+	$(MAKE) -C $(KERNEL_DIR) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) $(KERNEL_CFG_FRAGMENT)
+else
 	$(MAKE) -C $(KERNEL_DIR) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) $(KERNEL_CFG) $(KERNEL_CFG_FRAGMENT)
+endif
 	$(MAKE) -C $(KERNEL_DIR) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) $(KERNEL_DTS:dts=img) BOOT_ITS=boot.its -j$(SYSDRV_JOBS)
 ifeq ($(RK_ENABLE_FASTBOOT), y)
 	$(call MACRO_CLEAN_DRIVER_MODULE, rockit-ko)
@@ -397,6 +401,15 @@ endif
 	$(call MAROC_COPY_PKG_TO_SYSDRV_OUTPUT, $(OUTPUT_IMAGE_PATH), $(SYSDRV_DIR_OUT_IMAGE)/boot.img)
 	$(call MAROC_COPY_PKG_TO_SYSDRV_OUTPUT, $(OUTPUT_BOARD_BIN_PATH), \
 		$(SYSDRV_DIR_OUT_BOARD)/$(KERNEL_DTS:dts=dtb) $(SYSDRV_DIR_OUT_BOARD)/vmlinux)
+endif
+
+kernel_menuconfig: prepare
+	@echo -e "$(C_GREEN) ==sysdrv== make kernel menuconfig $(C_NORMAL)"
+	@echo -e "$(C_GREEN) $(MAKE) -C $(KERNEL_DIR) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) $(KERNEL_CFG) $(KERNEL_CFG_FRAGMENT) $(C_NORMAL)"
+ifeq ($(shell test -e $(KERNEL_DIR)/.config && echo -n yes), yes)
+	$(MAKE) menuconfig -C $(KERNEL_DIR) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) $(KERNEL_CFG_FRAGMENT)
+else
+	$(MAKE) menuconfig -C $(KERNEL_DIR) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) $(KERNEL_CFG) $(KERNEL_CFG_FRAGMENT)
 endif
 
 kernel_clean:

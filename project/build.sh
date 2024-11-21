@@ -530,10 +530,26 @@ function build_kernel(){
 	echo "TARGET_KERNEL_CONFIG_FRAGMENT =$RK_KERNEL_DEFCONFIG_FRAGMENT"
 	echo "=========================================="
 
+	echo -e "\e[1;31m make kernel -C ${SDK_SYSDRV_DIR} KERNEL_CFG=${RK_KERNEL_DEFCONFIG} KERNEL_DTS=${RK_KERNEL_DTS} KERNEL_CFG_FRAGMENT=${RK_KERNEL_DEFCONFIG_FRAGMENT} \e[0m"
 	make kernel -C ${SDK_SYSDRV_DIR} \
 		KERNEL_CFG=${RK_KERNEL_DEFCONFIG} \
 		KERNEL_DTS=${RK_KERNEL_DTS} \
 		KERNEL_CFG_FRAGMENT=${RK_KERNEL_DEFCONFIG_FRAGMENT}
+
+	finish_build
+}
+
+function make_kernel_menuconfig(){
+	check_config RK_KERNEL_DTS RK_KERNEL_DEFCONFIG || return 0
+
+	echo "======Start make kernel menuconfig========"
+	echo "TARGET_ARCH          =$RK_ARCH"
+	echo "TARGET_KERNEL_CONFIG =$RK_KERNEL_DEFCONFIG"
+	echo "TARGET_KERNEL_DTS    =$RK_KERNEL_DTS"
+	echo "TARGET_KERNEL_CONFIG_FRAGMENT =$RK_KERNEL_DEFCONFIG_FRAGMENT"
+	echo "=========================================="
+	echo -e "\e[1;31m make menuconfig -C ${SDK_SYSDRV_DIR} KERNEL_CFG=${RK_KERNEL_DEFCONFIG} KERNEL_DTS=${RK_KERNEL_DTS} KERNEL_CFG_FRAGMENT=${RK_KERNEL_DEFCONFIG_FRAGMENT} \e[0m"
+	make kernel_menuconfig -C ${SDK_SYSDRV_DIR} KERNEL_CFG=${RK_KERNEL_DEFCONFIG} KERNEL_DTS=${RK_KERNEL_DTS} KERNEL_CFG_FRAGMENT=${RK_KERNEL_DEFCONFIG_FRAGMENT}
 
 	finish_build
 }
@@ -2018,6 +2034,7 @@ do
 		sysdrv) option=build_sysdrv ;;
 		uboot) option=build_uboot ;;
 		kernel) option=build_kernel ;;
+		kernel_menuconfig) option=make_kernel_menuconfig ;;
 		rootfs) option=build_rootfs ;;
 		media) option=build_media ;;
 		app) option=build_app ;;
