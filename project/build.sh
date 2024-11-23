@@ -562,6 +562,14 @@ function build_rootfs(){
 	finish_build
 }
 
+function make_busybox_menuconfig(){
+	check_config RK_BOOT_MEDIUM || return 0
+
+	make busybox_menuconfig -C ${SDK_SYSDRV_DIR}
+
+	finish_build
+}
+
 function build_recovery(){
 	check_config RK_ENABLE_RECOVERY || return 0
 
@@ -2036,6 +2044,7 @@ do
 		kernel) option=build_kernel ;;
 		kernel_menuconfig) option=make_kernel_menuconfig ;;
 		rootfs) option=build_rootfs ;;
+		busybox_menuconfig) option=make_busybox_menuconfig ;;
 		media) option=build_media ;;
 		app) option=build_app ;;
 		info) option=build_info ;;
