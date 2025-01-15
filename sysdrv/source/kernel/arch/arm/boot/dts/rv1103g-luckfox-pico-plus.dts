@@ -163,15 +163,33 @@
 &spi0 {
 	status = "okay";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spi0m0_pins>;
-	cs-gpios = <&gpio1 RK_PC0 1>;
-	// cs-gpios = <&gpio1 26 1>;
-	#address-cells = <1>;
-	#size-cells = <0>;
-	spidev@0 {
-		compatible = "rockchip,spidev";
-		spi-max-frequency = <1000000000>;
+	pinctrl-0 = <&spi0m0_cs0 &spi0m0_pins>;
+
+	st7789v@0{
+		status = "okay";
+		compatible = "sitronix,st7789v_drg";
 		reg = <0>;
+		spi-max-frequency = <20000000>;
+		fps = <30>;
+		buswidth = <8>;
+		debug = <0x7>;
+		led-gpios = <&gpio0 RK_PA4 GPIO_ACTIVE_HIGH>; // BL
+		dc-gpios = <&gpio1 RK_PA2 GPIO_ACTIVE_HIGH>;  //DC
+		// reset = <&gpio1 RK_PC3 GPIO_ACTIVE_LOW>;   //RES
+	};
+};
+&pinctrl {
+	spi0 {
+		/omit-if-no-ref/
+		spi0m0_pins:spi0m0-pins {
+			rockchip,pins =
+				/* spi0_clk_m0 */
+				<1 RK_PC1 4 &pcfg_pull_none>,
+				/* spi0_miso_m0 */
+				/* <1 RK_PC3 6 &pcfg_pull_none>, */
+				/* spi0_mosi_m0 */
+				<1 RK_PC2 6 &pcfg_pull_none>;
+		};
 	};
 };
 
