@@ -1,0 +1,7 @@
+
+> 执行命令（需要手动将图片推到/root目录下）
+
+```log
+# jpg_to_fb  /root/flower.jpg       /dev/fb0
+JPEG image successfully displayed on framebuffer
+```

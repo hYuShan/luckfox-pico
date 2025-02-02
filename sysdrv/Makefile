@@ -1,4 +1,5 @@
 SYSDRV_DIR=$(shell pwd)
+MYCODE_DIR=$(SYSDRV_DIR)/../mycode/
 
 export LC_ALL=C
 SHELL:=/bin/bash
@@ -521,12 +522,42 @@ drv_clean:
 	@-rm -rf $(SYSDRV_KERNEL_MOD_PATH) $(KERNEL_DIR_DRV_KO)
 	@echo -e "$(C_GREEN) ==sysdrv== clean drv $(C_NORMAL)"
 
+ifeq ($(wildcard $(MYCODE_DIR)/out), $(MYCODE_DIR)/out)
+    MYCODE_OUT_DIR_EXISTS = true
+else
+    MYCODE_OUT_DIR_EXISTS = false
+endif
+
+mycode:
+	@echo -e "$(C_GREEN) ==mycode== build mycode $(C_NORMAL)"
+	$(MAKE) -C $(MYCODE_DIR) CROSS_COMPILE=$(CROSS_COMPILE)
+
+mycode_clean:
+	@echo -e "$(C_GREEN) ==mycode== clean mycode $(C_NORMAL)"
+	@echo "Deleting matching files in $(SYSDRV_DIR)/out/rootfs_uclibc_rv1106/usr/bin/"
+	@if [ "$(MYCODE_OUT_DIR_EXISTS)" =  "true" ]; then \
+		echo "directory($(MYCODE_DIR)/out) exists" ; \
+		find $(MYCODE_DIR)/out -type f > mycode_tmp.txt ; \
+		cat mycode_tmp.txt | sed "s|$(MYCODE_DIR)/out|$(SYSDRV_DIR)/out/rootfs_uclibc_rv1106/usr/bin|g" | xargs rm -f ; \
+		rm -rf mycode_tmp.txt ; \
+	else \
+		echo "directory($(MYCODE_DIR)) not exists" ; \
+	fi
+	@echo "Deleting compiled files..."
+	$(MAKE) clean -C $(MYCODE_DIR) CROSS_COMPILE=$(CROSS_COMPILE)
+
 ##########################################################################################
 #	build rootfs
 ##########################################################################################
 rootfs: rootfs_prepare pctools busybox boardtools drv
 	@echo -e "$(C_GREEN) ==sysdrv== build rootfs  $(C_NORMAL)"
 	make -C $(SYSDRV_DIR) strip
+	@if [ "$(MYCODE_OUT_DIR_EXISTS)" =  "true" ]; then \
+		echo "directory($(MYCODE_DIR)/out) exists" ; \
+		find "$(MYCODE_DIR)/out" -type f | xargs -I {} cp {} "$(SYSDRV_DIR)/out/rootfs_uclibc_rv1106/usr/bin/" ; \
+	else \
+		echo "directory($(MYCODE_DIR)) not exists" ; \
+	fi
 	pushd $(SYSDRV_DIR)/out;tar cf $(OUT_ROOTFS).tar $(OUT_ROOTFS);popd
 	@# RK_PARTITION_FS_TYPE_CFG is defined outside of sysdrv,
 	@# so if defined RK_PARTITION_FS_TYPE_CFG, we ignore SYSDRV_ROOTFS_BUILD_TARGET

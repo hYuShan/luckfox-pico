@@ -554,6 +554,20 @@ function make_kernel_menuconfig(){
 	finish_build
 }
 
+function make_mycode(){
+	echo "======Start make mycode========"
+	echo "=========================================="
+	echo -e "\e[1;31m make mycode -C ${SDK_SYSDRV_DIR} \e[0m"
+	make mycode -C ${SDK_SYSDRV_DIR}
+}
+
+function make_mycode_clean(){
+	echo "======Start make mycode clean========"
+	echo "=========================================="
+	echo -e "\e[1;31m make mycode -C ${SDK_SYSDRV_DIR} \e[0m"
+	make mycode_clean -C ${SDK_SYSDRV_DIR}
+}
+
 function build_rootfs(){
 	check_config RK_BOOT_MEDIUM || return 0
 
@@ -2043,6 +2057,8 @@ do
 		uboot) option=build_uboot ;;
 		kernel) option=build_kernel ;;
 		kernel_menuconfig) option=make_kernel_menuconfig ;;
+		mycode) option=make_mycode ;;
+		mycode_clean) option=make_mycode_clean ;;
 		rootfs) option=build_rootfs ;;
 		busybox_menuconfig) option=make_busybox_menuconfig ;;
 		media) option=build_media ;;
